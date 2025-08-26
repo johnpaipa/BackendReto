@@ -24,12 +24,33 @@ export class CursosController {
     private readonly cloudinaryService: CloudinaryService,
   ) { }
 
-@Get('/progreso')
-  @UseInterceptors() 
+  @Get('/progreso')
+  @UseInterceptors()
   @UsePipes()
   findAllProgresos() {
     return this.cursosService.findAllProgresos();
   }
+
+  @Get('/modulos')
+  findAllModulos() {
+    return this.cursosService.findAllModulos();
+  }
+
+  @Get('/capitulos')
+  findAllCapitulos() {
+    return this.cursosService.findAllCapitulos();
+  }
+
+  @Get('/clases')
+  findAllClases() {
+    return this.cursosService.findAllClases();
+  }
+  
+  @Get('/insignias')
+  findAllInsignias() {
+    return this.cursosService.findAllInsignias();
+  }
+
   // CURSOS ENDPOINTS
   @Post()
   create(@Body() createCursoDto: CreateCursoDto) {
@@ -73,10 +94,7 @@ export class CursosController {
     return this.cursosService.createModulo(createModuloDto);
   }
 
-  @Get('/modulos')
-  findAllModulos() {
-    return this.cursosService.findAllModulos();
-  }
+
 
   @Get('/modulos/:id')
   findOneModulo(@Param('id', ParseIntPipe) id: number) {
@@ -99,11 +117,6 @@ export class CursosController {
   @Post('/capitulos')
   createCapitulo(@Body() createCapituloDto: CreateCapituloDto) {
     return this.cursosService.createCapitulo(createCapituloDto);
-  }
-
-  @Get('/capitulos')
-  findAllCapitulos() {
-    return this.cursosService.findAllCapitulos();
   }
 
   @Get('/capitulos/curso/:cursoId')
@@ -148,11 +161,6 @@ export class CursosController {
     return this.cursosService.createClase(createClaseDto);
   }
 
-  @Get('/clases')
-  findAllClases() {
-    return this.cursosService.findAllClases();
-  }
-
   @Get('/clases/capitulo/:capituloId')
   findClasesByCapitulo(@Param('capituloId', ParseIntPipe) capituloId: number) {
     return this.cursosService.findClasesByCapitulo(capituloId);
@@ -179,10 +187,6 @@ export class CursosController {
     return this.cursosService.createInsignia(createInsigniaDto);
   }
 
-  @Get('/insignias')
-  findAllInsignias() {
-    return this.cursosService.findAllInsignias();
-  }
 
   @Get('/insignias/curso/:cursoId')
   findInsigniasByCurso(@Param('cursoId', ParseIntPipe) cursoId: number) {
