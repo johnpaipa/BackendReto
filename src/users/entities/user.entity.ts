@@ -1,5 +1,6 @@
 import { Progreso } from "src/cursos/entities/progreso.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -17,5 +18,6 @@ export class User {
   correo: string;
 
   @Column()
+  @Exclude()
   contrasena: string;
 }
