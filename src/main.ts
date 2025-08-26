@@ -12,9 +12,14 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
     transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: false, 
+    skipMissingProperties: true,
+    skipUndefinedProperties: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
   }));
 
   await app.listen(process.env.PORT ?? 3000);

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards, ParseIntPipe, UsePipes } from '@nestjs/common';
 import { CursosService } from './cursos.service';
 import { CreateCursoDto } from './dto/create-curso.dto';
 import { UpdateCursoDto } from './dto/update-curso.dto';
@@ -24,7 +24,12 @@ export class CursosController {
     private readonly cloudinaryService: CloudinaryService,
   ) { }
 
-  
+@Get('/progreso')
+  @UseInterceptors() 
+  @UsePipes()
+  findAllProgresos() {
+    return this.cursosService.findAllProgresos();
+  }
   // CURSOS ENDPOINTS
   @Post()
   create(@Body() createCursoDto: CreateCursoDto) {
@@ -61,7 +66,7 @@ export class CursosController {
     return this.cursosService.remove(id);
   }
 
- 
+
   // MODULOS ENDPOINTS 
   @Post('/modulos')
   createModulo(@Body() createModuloDto: CreateModuloDto) {
@@ -121,7 +126,7 @@ export class CursosController {
     return this.cursosService.removeCapitulo(id);
   }
 
-   // CLASES ENDPOINTS
+  // CLASES ENDPOINTS
   @Post('/clases/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadClase(
@@ -199,18 +204,13 @@ export class CursosController {
     return this.cursosService.removeInsignia(id);
   }
 
-  
+
   // PROGRESO ENDPOINTS
   @Post('/progreso')
   async createProgreso(@Body() createProgresoDto: CreateProgresoDto) {
     createProgresoDto.cursoId = Number(createProgresoDto.cursoId);
     createProgresoDto.usuarioId = Number(createProgresoDto.usuarioId);
     return this.cursosService.createProgreso(createProgresoDto);
-  }
-
-  @Get('/progreso')
-  findAllProgresos() {
-    return this.cursosService.findAllProgresos();
   }
 
   @Get('/progreso/usuario/:userId')
@@ -238,7 +238,7 @@ export class CursosController {
     return this.cursosService.removeProgreso(id);
   }
 
- 
+
   // ENDPOINTS ESPECIALES
   // Dashboard completo del usuario
   @Get('/dashboard/usuario/:userId')
@@ -259,7 +259,7 @@ export class CursosController {
     return this.cursosService.createProgreso(createProgresoDto);
   }
 
-  
+
   @Patch(':cursoId/completar/:usuarioId')
   async completarCurso(
     @Param('cursoId', ParseIntPipe) cursoId: number,
@@ -267,8 +267,8 @@ export class CursosController {
   ) {
     const progresos = await this.cursosService.findProgresosByUser(usuarioId);
     const progreso = progresos.find(p => p.curso.id === cursoId);
-    
-    if (!progreso) {      
+
+    if (!progreso) {
       const createProgresoDto: CreateProgresoDto = {
         cursoId,
         usuarioId,
@@ -282,7 +282,7 @@ export class CursosController {
       return this.cursosService.updateProgreso(progreso.id, updateProgresoDto);
     }
   }
-  
+
   @Patch(':cursoId/iniciar/:usuarioId')
   async iniciarCurso(
     @Param('cursoId', ParseIntPipe) cursoId: number,
@@ -290,7 +290,7 @@ export class CursosController {
   ) {
     const progresos = await this.cursosService.findProgresosByUser(usuarioId);
     const progreso = progresos.find(p => p.curso.id === cursoId);
-    
+
     if (!progreso) {
       const createProgresoDto: CreateProgresoDto = {
         cursoId,

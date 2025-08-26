@@ -48,22 +48,22 @@ export class CursosService {
   ) { }
 
   // CURSOS CRUD
- async create(createCursoDto: CreateCursoDto) {
-  const { moduloId, ...cursoData } = createCursoDto;
-  
-  const cursoCreateData: any = { ...cursoData };
-  
-  if (moduloId) {
-    const modulo = await this.moduloRepo.findOne({ where: { id: moduloId } });
-    if (!modulo) {
-      throw new NotFoundException(`Módulo con id ${moduloId} no encontrado`);
-    }
-    cursoCreateData.modulo = modulo;
-  }
+  async create(createCursoDto: CreateCursoDto) {
+    const { moduloId, ...cursoData } = createCursoDto;
 
-  const curso = this.cursoRepo.create(cursoCreateData);
-  return await this.cursoRepo.save(curso);
-}
+    const cursoCreateData: any = { ...cursoData };
+
+    if (moduloId) {
+      const modulo = await this.moduloRepo.findOne({ where: { id: moduloId } });
+      if (!modulo) {
+        throw new NotFoundException(`Módulo con id ${moduloId} no encontrado`);
+      }
+      cursoCreateData.modulo = modulo;
+    }
+
+    const curso = this.cursoRepo.create(cursoCreateData);
+    return await this.cursoRepo.save(curso);
+  }
 
   async findAll() {
     return await this.cursoRepo.find({
@@ -93,24 +93,24 @@ export class CursosService {
     return await this.cursoRepo.save(curso);
   }
 
-async remove(id: number) {
-  const curso = await this.findOne(id);
-  if (curso.insignia) {
-    await this.insigniaRepo.delete({ curso: { id } });
-  }
-  await this.progresoRepo.delete({ curso: { id } });
-  
-  if (curso.capitulos) {
-    for (const capitulo of curso.capitulos) {
-      await this.claseRepo.delete({ capitulo: { id: capitulo.id } });
+  async remove(id: number) {
+    const curso = await this.findOne(id);
+    if (curso.insignia) {
+      await this.insigniaRepo.delete({ curso: { id } });
     }
-    await this.capituloRepo.delete({ curso: { id } });
-  }
-  
-  return await this.cursoRepo.remove(curso);
-}
+    await this.progresoRepo.delete({ curso: { id } });
 
-   // MODULOS CRUD 
+    if (curso.capitulos) {
+      for (const capitulo of curso.capitulos) {
+        await this.claseRepo.delete({ capitulo: { id: capitulo.id } });
+      }
+      await this.capituloRepo.delete({ curso: { id } });
+    }
+
+    return await this.cursoRepo.remove(curso);
+  }
+
+  // MODULOS CRUD 
   async createModulo(createModuloDto: CreateModuloDto) {
     const modulo = this.moduloRepo.create(createModuloDto);
     return await this.moduloRepo.save(modulo);
@@ -237,7 +237,7 @@ async remove(id: number) {
     return await this.claseRepo.find({
       where: { capitulo: { id: capituloId } },
       relations: ['capitulo'],
-      order: { id: 'ASC' }, 
+      order: { id: 'ASC' },
     });
   }
 
@@ -268,7 +268,7 @@ async remove(id: number) {
     return await this.claseRepo.remove(clase);
   }
 
-  
+
   // INSIGNIAS CRUD
   async createInsignia(createInsigniaDto: CreateInsigniaDto) {
     const { cursoId, ...data } = createInsigniaDto;
@@ -327,7 +327,7 @@ async remove(id: number) {
     return await this.insigniaRepo.remove(insignia);
   }
 
- 
+
   // PROGRESO CRUD
   async createProgreso(createProgresoDto: CreateProgresoDto) {
     const { cursoId, usuarioId, estado } = createProgresoDto;
@@ -343,7 +343,7 @@ async remove(id: number) {
     });
 
     if (progreso) {
-      progreso.estado = estado || progreso.estado; 
+      progreso.estado = estado || progreso.estado;
       progreso = await this.progresoRepo.save(progreso);
     } else {
       progreso = this.progresoRepo.create({
@@ -427,7 +427,7 @@ async remove(id: number) {
 
 
   // METODOS ESPECIALES DE CONSULTA
-  
+
   async getCursoCompleto(cursoId: number) {
     const curso = await this.cursoRepo.findOne({
       where: { id: cursoId },
@@ -445,7 +445,7 @@ async remove(id: number) {
         }
       }
     });
-    
+
     if (!curso) {
       throw new NotFoundException(`Curso con id ${cursoId} no encontrado`);
     }
@@ -456,7 +456,7 @@ async remove(id: number) {
         }
       });
     }
-    
+
     return curso;
   }
   async getUserDashboard(userId: number) {
@@ -492,7 +492,7 @@ async remove(id: number) {
 
   async getCursoStats(cursoId: number) {
     const curso = await this.findOne(cursoId);
-    
+
     const progresos = await this.progresoRepo.find({
       where: { curso: { id: cursoId } },
       relations: ['user'],
