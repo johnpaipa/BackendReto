@@ -10,9 +10,10 @@ import { Clase } from './entities/clase.entity';
 import { Insignia } from './entities/insignia.entity';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Curso, Progreso, Capitulo, Modulo, Clase, Insignia]), CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Curso, Progreso, Capitulo, Modulo, Clase, Insignia, User]), CloudinaryModule],
   controllers: [CursosController],
   providers: [CursosService , CloudinaryService],
 })

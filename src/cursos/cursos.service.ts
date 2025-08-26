@@ -14,6 +14,7 @@ import { CreateProgresoDto } from './dto/create-progreso.dto';
 import { CreateCapituloDto } from './dto/create-capitulo.dto';
 import { CreateClaseDto } from './dto/create-clase.dto';
 import { CreateModuloDto } from './dto/create-modulo.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CursosService {
@@ -35,6 +36,9 @@ export class CursosService {
 
     @InjectRepository(Modulo)
     private readonly moduloRepo: Repository<Modulo>,
+
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
 
   ) { }
 
@@ -78,38 +82,38 @@ export class CursosService {
   // -------------------------------
   // CAPÍTULOS
   // -------------------------------
-async createCapitulo(createCapituloDto: CreateCapituloDto) {
-  const { cursoId, ...data } = createCapituloDto;
-  const curso = await this.cursoRepo.findOne({ where: { id: cursoId } });
-  if (!curso) {
-    throw new NotFoundException(`Curso con id ${cursoId} no encontrado`);
+  async createCapitulo(createCapituloDto: CreateCapituloDto) {
+    const { cursoId, ...data } = createCapituloDto;
+    const curso = await this.cursoRepo.findOne({ where: { id: cursoId } });
+    if (!curso) {
+      throw new NotFoundException(`Curso con id ${cursoId} no encontrado`);
+    }
+    const capitulo = this.capituloRepo.create({
+      ...data,
+      curso,
+    });
+    return await this.capituloRepo.save(capitulo);
   }
-  const capitulo = this.capituloRepo.create({
-    ...data,
-    curso, 
-  });
-  return await this.capituloRepo.save(capitulo);
-}
 
 
   // -------------------------------
   // CLASES
   // -------------------------------
- async createClase(createClaseDto: CreateClaseDto) {
-  const { capituloId, ...data } = createClaseDto;
+  async createClase(createClaseDto: CreateClaseDto) {
+    const { capituloId, ...data } = createClaseDto;
 
-  const capitulo = await this.capituloRepo.findOne({ where: { id: capituloId } });
-  if (!capitulo) {
-    throw new NotFoundException(`Capítulo con id ${capituloId} no encontrado`);
+    const capitulo = await this.capituloRepo.findOne({ where: { id: capituloId } });
+    if (!capitulo) {
+      throw new NotFoundException(`Capítulo con id ${capituloId} no encontrado`);
+    }
+    const clase = this.claseRepo.create({
+      ...data,
+      capitulo,
+    });
+    return await this.claseRepo.save(clase);
   }
-  const clase = this.claseRepo.create({
-    ...data,
-    capitulo, 
-  });
-  return await this.claseRepo.save(clase);
-}
 
-    // -------------------------------
+  // -------------------------------
   // Modulos
   // -------------------------------
   async createModulo(createModuloDto: CreateModuloDto) {
@@ -120,32 +124,61 @@ async createCapitulo(createCapituloDto: CreateCapituloDto) {
   // -------------------------------
   // INSIGNIAS
   // -------------------------------
-async createInsignia(createInsigniaDto: CreateInsigniaDto) {
-  const { cursoId, ...data } = createInsigniaDto;
-  const curso = await this.cursoRepo.findOne({ where: { id: cursoId } });
-  if (!curso) {
-    throw new NotFoundException(`Curso con id ${cursoId} no encontrado`);
+  async createInsignia(createInsigniaDto: CreateInsigniaDto) {
+    const { cursoId, ...data } = createInsigniaDto;
+    const curso = await this.cursoRepo.findOne({ where: { id: cursoId } });
+    if (!curso) {
+      throw new NotFoundException(`Curso con id ${cursoId} no encontrado`);
+    }
+    const insignia = this.insigniaRepo.create({
+      ...data,
+      curso,
+    });
+    return await this.insigniaRepo.save(insignia);
   }
-  const insignia = this.insigniaRepo.create({
-    ...data,
-    curso,
-  });
-  return await this.insigniaRepo.save(insignia);
-}
 
 
   // -------------------------------
   // PROGRESO
   // -------------------------------
-  async createProgreso(cursoId: number, userId: number) {
-    const curso = await this.findOne(cursoId);
+   async createProgreso(createProgresoDto: CreateProgresoDto) {
+    const { cursoId, usuarioId, estado } = createProgresoDto;
 
-    const progreso = this.progresoRepo.create({
-      estado: "inscrito",
-      curso,
-      user: { id: userId } as any,
+    const curso = await this.findOne(cursoId);
+    if (!curso) throw new NotFoundException(`Curso ${cursoId} no encontrado`);
+
+    const user = await this.userRepo.findOne({ where: { id: usuarioId } });
+    if (!user) throw new NotFoundException(`Usuario ${usuarioId} no encontrado`);
+
+    let progreso = await this.progresoRepo.findOne({
+      where: { curso: { id: cursoId }, user: { id: usuarioId } },
     });
 
-    return await this.progresoRepo.save(progreso);
+    if (progreso) {
+      progreso.estado = estado || progreso.estado; 
+      progreso = await this.progresoRepo.save(progreso);
+    } else {
+      progreso = this.progresoRepo.create({
+        estado: estado || 'inscrito',
+        curso,
+        user,
+      });
+      progreso = await this.progresoRepo.save(progreso);
+    }
+    return {
+      id: progreso.id,
+      estado: progreso.estado,
+      curso: {
+        id: curso.id,
+        nombre: curso.nombre,
+        descripcion: curso.descripcion,
+      },
+      user: {
+        id: user.id,
+        nombre: user.nombre,
+        correo: user.correo,
+      },
+    };
   }
+
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { CursosService } from './cursos.service';
 import { CreateCursoDto } from './dto/create-curso.dto';
 import { UpdateCursoDto } from './dto/update-curso.dto';
@@ -8,6 +8,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateCapituloDto } from './dto/create-capitulo.dto';
 import { CreateInsigniaDto } from './dto/create-insignia.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateProgresoDto } from './dto/create-progreso.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('cursos')
@@ -71,5 +72,13 @@ export class CursosController {
   @Post('/insignia')
   createInsignia(@Body() createInsigniaDto: CreateInsigniaDto) {
     return this.cursosService.createInsignia(createInsigniaDto);
+  }
+
+  @Post(':cursoId/progreso')
+  async createProgreso(
+    @Body() createProgresoDto: CreateProgresoDto,
+  ) {
+    createProgresoDto.cursoId = Number(createProgresoDto.cursoId);
+    return this.cursosService.createProgreso(createProgresoDto);
   }
 }
