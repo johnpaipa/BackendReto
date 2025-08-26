@@ -5,26 +5,29 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CursosModule } from './cursos/cursos.module';
 import { AuthModule } from './auth/auth.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+
 
 @Module({
   imports: [UsersModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',        
-      host: 'dpg-d2lm7715pdvs73atabf0-a.oregon-postgres.render.com',       
-      port: 5432,              
-      username: 'user_reto',
-      password: 'HVKVxbFb3Yyh9Og9kR8zAg3go82sRsRK',
-      database: 'cursos_35nb',
-      autoLoadEntities: true,  
+      type: (process.env.TYPE as 'postgres' | 'mysql') ?? 'postgres',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.PORT_DATABASE ?? '5432', 10),
+      username: process.env.DB_USERNAME,
+      password: process.env.PASSWORD_DATABASE,
+      database: process.env.NAME_DATABASE,
+      autoLoadEntities: true,
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,
-      },    
+      },
     }),
     CursosModule,
     AuthModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

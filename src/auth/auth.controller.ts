@@ -6,9 +6,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() user: { email: string; password: string }) {
-    // validacion de usuario en DB
-    const fakeUser = { id: 1, email: user.email }; 
-    return this.authService.login(fakeUser);
+  async login(
+    @Body('correo') correo: string,
+    @Body('contrasena') contrasena: string,
+  ) {
+    const user = await this.authService.validateUser(correo, contrasena);
+    return this.authService.login(user);
   }
 }

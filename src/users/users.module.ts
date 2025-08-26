@@ -9,5 +9,6 @@ import { Progreso } from 'src/cursos/entities/progreso.entity';
   imports: [TypeOrmModule.forFeature([User,Progreso])],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
